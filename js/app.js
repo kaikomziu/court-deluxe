@@ -35,6 +35,18 @@ function showLandingError(msg) {
 }
 
 // ---------- 部屋作成フォーム: 役職設定 ----------
+function wireStepper(container, { min = 0, max = 9, initial = 0 } = {}) {
+  const valueEl = container.querySelector('.stepper-value');
+  valueEl.textContent = String(initial);
+  container.addEventListener('click', (e) => {
+    const btn = e.target.closest('.stepper-btn');
+    if (!btn) return;
+    const current = parseInt(valueEl.textContent, 10) || 0;
+    const next = btn.dataset.action === 'inc' ? Math.min(max, current + 1) : Math.max(min, current - 1);
+    valueEl.textContent = String(next);
+  });
+}
+
 function buildRoleCatalogRows() {
   const container = document.getElementById('role-catalog-rows');
   container.replaceChildren();
@@ -43,8 +55,13 @@ function buildRoleCatalogRows() {
     row.className = 'role-catalog-row';
     row.innerHTML = `
       <span class="role-label">${role.icon} ${role.label}</span>
-      <input type="number" min="0" max="9" value="${role.defaultCap}" data-role-key="${role.key}">
+      <div class="stepper" data-role-key="${role.key}">
+        <button type="button" class="stepper-btn" data-action="dec">−</button>
+        <span class="stepper-value">${role.defaultCap}</span>
+        <button type="button" class="stepper-btn" data-action="inc">＋</button>
+      </div>
     `;
+    wireStepper(row.querySelector('.stepper'), { initial: role.defaultCap });
     container.appendChild(row);
   }
 }
@@ -70,10 +87,10 @@ function renderCustomRoleList() {
 
 function collectRolesConfig() {
   const roles = [];
-  document.querySelectorAll('#role-catalog-rows input[type="number"]').forEach((input) => {
-    const cap = parseInt(input.value, 10) || 0;
+  document.querySelectorAll('#role-catalog-rows .stepper').forEach((stepper) => {
+    const cap = parseInt(stepper.querySelector('.stepper-value').textContent, 10) || 0;
     if (cap <= 0) return;
-    const catalog = ROLE_CATALOG.find((r) => r.key === input.dataset.roleKey);
+    const catalog = ROLE_CATALOG.find((r) => r.key === stepper.dataset.roleKey);
     roles.push({ key: catalog.key, label: catalog.label, color: catalog.color, icon: catalog.icon, capacity: cap });
   });
   customRoles.forEach((r) => roles.push({ ...r }));
@@ -83,17 +100,19 @@ function collectRolesConfig() {
   return roles;
 }
 
+wireStepper(document.getElementById('custom-cap-stepper'), { min: 1, initial: 1 });
+
 document.getElementById('btn-add-custom-role').addEventListener('click', () => {
   const labelInput = document.getElementById('input-custom-label');
-  const capInput = document.getElementById('input-custom-cap');
+  const capValueEl = document.getElementById('custom-cap-value');
   const label = labelInput.value.trim();
-  const cap = parseInt(capInput.value, 10) || 1;
+  const cap = parseInt(capValueEl.textContent, 10) || 1;
   if (!label) return;
   const existingKeys = [...ROLE_CATALOG.map((r) => r.key), 'audience', ...customRoles.map((r) => r.key)];
   const key = slugifyCustomKey(label, existingKeys);
   customRoles.push({ key, label, color: customColor(customRoles.length), icon: '🏷️', capacity: cap });
   labelInput.value = '';
-  capInput.value = '1';
+  capValueEl.textContent = '1';
   renderCustomRoleList();
 });
 

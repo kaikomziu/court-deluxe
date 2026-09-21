@@ -102,10 +102,26 @@ export function wireCourtroomDom() {
     if (btn) handlers.onToggleStar(btn.dataset.id);
   });
 
-  document.getElementById('btn-next-turn').addEventListener('click', () => handlers.onNextTurn());
-  document.getElementById('btn-conclude').addEventListener('click', () => handlers.onConclude());
-
-  document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
-    document.getElementById('court-sidebar').classList.toggle('hidden');
+  document.getElementById('btn-next-turn').addEventListener('click', () => {
+    handlers.onNextTurn();
+    closeSidebar();
   });
+  document.getElementById('btn-conclude').addEventListener('click', () => {
+    handlers.onConclude();
+    closeSidebar();
+  });
+
+  document.getElementById('btn-toggle-sidebar').addEventListener('click', openSidebar);
+  document.getElementById('btn-close-sidebar').addEventListener('click', closeSidebar);
+  document.getElementById('court-sidebar-backdrop').addEventListener('click', closeSidebar);
+}
+
+function openSidebar() {
+  document.getElementById('court-sidebar').classList.add('open');
+  document.getElementById('court-sidebar-backdrop').classList.add('show');
+}
+
+function closeSidebar() {
+  document.getElementById('court-sidebar').classList.remove('open');
+  document.getElementById('court-sidebar-backdrop').classList.remove('show');
 }

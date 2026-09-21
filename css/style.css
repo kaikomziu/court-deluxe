@@ -68,17 +68,29 @@ textarea { resize: vertical; }
 .role-config { border: 1px solid var(--wood-light); border-radius: var(--radius); padding: 14px; margin-bottom: 16px; }
 .role-config legend { padding: 0 6px; color: var(--gold-light); font-size: 0.85rem; }
 
-.role-catalog-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.role-catalog-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
 .role-catalog-row .role-label { flex: 1; }
-.role-catalog-row input[type="number"] { width: 64px; text-align: center; }
+
+.stepper { display: flex; align-items: center; gap: 0; border: 1px solid var(--wood-light); border-radius: 8px; overflow: hidden; flex-shrink: 0; }
+.stepper-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: #17110c;
+  color: var(--gold-light);
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.stepper-btn:active { background: var(--wood-light); }
+.stepper-value { display: inline-block; width: 36px; text-align: center; font-size: 1rem; font-weight: bold; }
 
 .audience-toggle { display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: 0.9rem; }
 .audience-toggle input { width: auto; }
 
-.custom-role-adder { display: flex; gap: 8px; margin-top: 10px; }
-.custom-role-adder input[type="text"] { flex: 2; }
-.custom-role-adder input[type="number"] { flex: 1; width: 60px; }
-.custom-role-adder button { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--gold); background: transparent; color: var(--gold-light); cursor: pointer; }
+.custom-role-adder { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.custom-role-adder input[type="text"] { flex: 1 1 140px; }
+.custom-role-adder > button { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--gold); background: transparent; color: var(--gold-light); cursor: pointer; }
 
 #custom-role-list { list-style: none; padding: 0; margin: 8px 0 0; }
 #custom-role-list li { display: flex; justify-content: space-between; padding: 6px 10px; background: #17110c; border-radius: 6px; margin-bottom: 6px; font-size: 0.9rem; }
@@ -167,7 +179,13 @@ textarea { resize: vertical; }
 .phase-badge.in_session { background: #2e7d32; color: #eafbe7; }
 .phase-badge.concluded { background: var(--danger); color: #ffe9e6; }
 
-.court-body { display: flex; height: calc(100vh - 76px); }
+#view-courtroom.view {
+  height: 100vh;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.court-body { display: flex; flex: 1; min-height: 0; }
 .court-sidebar {
   width: 220px;
   flex-shrink: 0;
@@ -176,8 +194,10 @@ textarea { resize: vertical; }
   overflow-y: auto;
   border-right: 1px solid var(--wood-light);
 }
-.court-sidebar h3 { margin: 0 0 10px; font-size: 0.9rem; color: var(--gold-light); }
+.court-sidebar h3 { margin: 0 0 10px; font-size: 0.9rem; color: var(--gold-light); display: flex; justify-content: space-between; align-items: center; }
+.court-sidebar .sidebar-close-btn { display: none; }
 .court-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+.sidebar-backdrop { display: none; }
 
 .court-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .chat-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -200,7 +220,45 @@ textarea { resize: vertical; }
 .my-role-select { width: auto; flex-shrink: 0; }
 
 @media (max-width: 680px) {
-  .court-sidebar { position: fixed; inset: 76px 0 0 auto; right: 0; width: 78vw; max-width: 280px; z-index: 20; transform: translateX(0); transition: transform 0.2s; box-shadow: -6px 0 16px rgba(0,0,0,0.4); }
-  .court-sidebar.hidden { transform: translateX(100%); }
   .room-header h2 { max-width: 100%; font-size: 1rem; }
+  .room-header { padding: 12px 14px; }
+
+  .court-sidebar {
+    position: fixed;
+    inset: 0 0 0 auto;
+    right: 0;
+    width: 80vw;
+    max-width: 300px;
+    z-index: 30;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    box-shadow: -6px 0 16px rgba(0,0,0,0.5);
+    padding-top: max(14px, env(safe-area-inset-top));
+  }
+  .court-sidebar.open { transform: translateX(0); }
+  .court-sidebar .sidebar-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: 1px solid var(--wood-light);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 1rem;
+    cursor: pointer;
+  }
+
+  .sidebar-backdrop.show {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 25;
+  }
+
+  .primary-btn, .secondary-btn, .ghost-btn, .tab-btn { min-height: 46px; }
+  .role-slot { min-height: 88px; }
+  .msg { max-width: 90%; }
 }

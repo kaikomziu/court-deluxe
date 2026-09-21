@@ -48,7 +48,11 @@
 
         <div class="custom-role-adder">
           <input id="input-custom-label" type="text" maxlength="12" placeholder="独自の役職名(例: 書記官)">
-          <input id="input-custom-cap" type="number" min="1" max="9" value="1">
+          <div class="stepper" id="custom-cap-stepper">
+            <button type="button" class="stepper-btn" data-action="dec">−</button>
+            <span class="stepper-value" id="custom-cap-value">1</span>
+            <button type="button" class="stepper-btn" data-action="inc">＋</button>
+          </div>
           <button type="button" id="btn-add-custom-role">＋追加</button>
         </div>
         <ul id="custom-role-list"></ul>
@@ -113,8 +117,9 @@
   </header>
 
   <div class="court-body">
+    <div id="court-sidebar-backdrop" class="sidebar-backdrop"></div>
     <aside id="court-sidebar" class="court-sidebar">
-      <h3>出席者</h3>
+      <h3>出席者 <button id="btn-close-sidebar" class="sidebar-close-btn" type="button">✕</button></h3>
       <div id="court-participant-list" class="participant-list"></div>
       <div class="court-actions">
         <button id="btn-next-turn" class="secondary-btn" type="button" hidden>👉 次を指名</button>
