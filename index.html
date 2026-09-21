@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COURT DELUXE ‐ リアルタイム模擬裁判・会議</title>
+<meta name="description" content="部屋を作って役職(タグ)を決め、裁判官BOTの進行でリアルタイムに議論する模擬裁判/会議アプリ。判決は出さず、論点整理だけを行います。">
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9A%96%EF%B8%8F%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+
+<div id="view-landing" class="view">
+  <header class="landing-header">
+    <h1>⚖️ COURT DELUXE</h1>
+    <p class="tagline">部屋を作って役職を決め、裁判官BOTの進行でみんなで議論する</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="create">部屋を作る</button>
+    <button class="tab-btn" data-tab="join">部屋に入る</button>
+  </div>
+
+  <section id="tab-create" class="tab-panel active">
+    <form id="form-create">
+      <label class="field">
+        <span>お題(何を議論・審議しますか)</span>
+        <textarea id="input-topic" required maxlength="300" rows="3" placeholder="例: 週末の旅行先はどこにすべきか / 〇〇の是非について"></textarea>
+      </label>
+      <label class="field">
+        <span>入室パスワード</span>
+        <input id="input-create-password" type="text" required maxlength="50" placeholder="合言葉を決めてください">
+      </label>
+
+      <fieldset class="role-config">
+        <legend>役職(タグ)の設定 ― 人数0のタグは使いません</legend>
+        <div id="role-catalog-rows"></div>
+        <label class="audience-toggle">
+          <input type="checkbox" id="input-allow-audience" checked>
+          <span>👥 傍聴人を許可する(人数無制限)</span>
+        </label>
+
+        <div class="custom-role-adder">
+          <input id="input-custom-label" type="text" maxlength="12" placeholder="独自の役職名(例: 書記官)">
+          <input id="input-custom-cap" type="number" min="1" max="9" value="1">
+          <button type="button" id="btn-add-custom-role">＋追加</button>
+        </div>
+        <ul id="custom-role-list"></ul>
+      </fieldset>
+
+      <button type="submit" class="primary-btn">部屋を作る</button>
+    </form>
+  </section>
+
+  <section id="tab-join" class="tab-panel">
+    <form id="form-join">
+      <label class="field">
+        <span>部屋コード</span>
+        <input id="input-join-code" type="text" required maxlength="6" placeholder="例: AB12CD" autocapitalize="characters">
+      </label>
+      <label class="field">
+        <span>パスワード</span>
+        <input id="input-join-password" type="text" required maxlength="50" placeholder="合言葉を入力">
+      </label>
+      <button type="submit" class="primary-btn">入る</button>
+    </form>
+  </section>
+
+  <p id="landing-error" class="error-msg" hidden></p>
+</div>
+
+<div id="view-lobby" class="view" hidden>
+  <header class="room-header">
+    <div>
+      <div class="room-code-badge">部屋コード: <span id="lobby-room-code"></span> <button id="btn-copy-link" type="button" title="招待リンクをコピー">🔗コピー</button></div>
+      <h2 id="lobby-topic"></h2>
+    </div>
+    <button id="btn-leave-lobby" class="ghost-btn" type="button">退室</button>
+  </header>
+
+  <div class="lobby-body">
+    <label class="field">
+      <span>あなたの表示名</span>
+      <input id="input-nickname" type="text" maxlength="16" placeholder="ニックネームを入力">
+    </label>
+
+    <div id="lobby-role-grid" class="role-grid"></div>
+
+    <div id="lobby-status" class="lobby-status"></div>
+
+    <div id="lobby-participant-list" class="participant-list"></div>
+
+    <button id="btn-start-session" class="primary-btn" hidden>⚖️ 開廷する</button>
+  </div>
+</div>
+
+<div id="view-courtroom" class="view" hidden>
+  <header class="room-header">
+    <div>
+      <div class="room-code-badge">部屋コード: <span id="court-room-code"></span></div>
+      <h2 id="court-topic"></h2>
+    </div>
+    <div class="court-header-actions">
+      <span id="court-phase-badge" class="phase-badge"></span>
+      <button id="btn-toggle-sidebar" class="ghost-btn" type="button">👥</button>
+    </div>
+  </header>
+
+  <div class="court-body">
+    <aside id="court-sidebar" class="court-sidebar">
+      <h3>出席者</h3>
+      <div id="court-participant-list" class="participant-list"></div>
+      <div class="court-actions">
+        <button id="btn-next-turn" class="secondary-btn" type="button" hidden>👉 次を指名</button>
+        <button id="btn-conclude" class="secondary-btn" type="button">📋 まとめを求める</button>
+      </div>
+    </aside>
+
+    <main class="court-main">
+      <div id="chat-log" class="chat-log"></div>
+      <form id="form-chat" class="chat-input-row">
+        <input id="input-chat" type="text" maxlength="500" placeholder="発言を入力…" autocomplete="off">
+        <button type="submit" class="primary-btn">送信</button>
+      </form>
+    </main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>

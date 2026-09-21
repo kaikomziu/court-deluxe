@@ -1,0 +1,206 @@
+:root {
+  --wood: #3b2a20;
+  --wood-light: #5a4033;
+  --gold: #c9a24b;
+  --gold-light: #e8cf8a;
+  --bg: #1c1410;
+  --panel: #2a1e17;
+  --text: #f2e9da;
+  --text-dim: #b8a98f;
+  --danger: #c0392b;
+  --radius: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(ellipse at top, #2c2018, var(--bg));
+  color: var(--text);
+  font-family: "Hiragino Sans", "Yu Gothic", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.view { min-height: 100vh; }
+.view[hidden] { display: none !important; }
+
+/* ---------- Landing ---------- */
+#view-landing {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 32px 18px 60px;
+}
+
+.landing-header { text-align: center; margin-bottom: 24px; }
+.landing-header h1 { font-size: 2rem; margin: 0 0 6px; color: var(--gold-light); letter-spacing: 0.03em; }
+.tagline { color: var(--text-dim); margin: 0; font-size: 0.9rem; }
+
+.tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--wood-light);
+  background: var(--panel);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.tab-btn.active { background: var(--gold); color: #241a10; border-color: var(--gold); font-weight: bold; }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+.field { display: block; margin-bottom: 14px; }
+.field span { display: block; margin-bottom: 6px; font-size: 0.85rem; color: var(--text-dim); }
+input[type="text"], input[type="number"], textarea, select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--wood-light);
+  background: #17110c;
+  color: var(--text);
+  font-size: 1rem;
+  font-family: inherit;
+}
+textarea { resize: vertical; }
+
+.role-config { border: 1px solid var(--wood-light); border-radius: var(--radius); padding: 14px; margin-bottom: 16px; }
+.role-config legend { padding: 0 6px; color: var(--gold-light); font-size: 0.85rem; }
+
+.role-catalog-row { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+.role-catalog-row .role-label { flex: 1; }
+.role-catalog-row input[type="number"] { width: 64px; text-align: center; }
+
+.audience-toggle { display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: 0.9rem; }
+.audience-toggle input { width: auto; }
+
+.custom-role-adder { display: flex; gap: 8px; margin-top: 10px; }
+.custom-role-adder input[type="text"] { flex: 2; }
+.custom-role-adder input[type="number"] { flex: 1; width: 60px; }
+.custom-role-adder button { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--gold); background: transparent; color: var(--gold-light); cursor: pointer; }
+
+#custom-role-list { list-style: none; padding: 0; margin: 8px 0 0; }
+#custom-role-list li { display: flex; justify-content: space-between; padding: 6px 10px; background: #17110c; border-radius: 6px; margin-bottom: 6px; font-size: 0.9rem; }
+#custom-role-list button { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.9rem; }
+
+.primary-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: var(--radius);
+  border: none;
+  background: linear-gradient(180deg, var(--gold-light), var(--gold));
+  color: #241a10;
+  font-size: 1.05rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+.primary-btn:active { transform: translateY(1px); }
+.primary-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.secondary-btn {
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--gold);
+  background: transparent;
+  color: var(--gold-light);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.ghost-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--wood-light);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+}
+
+.error-msg { color: #ff8a80; text-align: center; margin-top: 14px; }
+
+/* ---------- Lobby & Courtroom shared header ---------- */
+.room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 18px;
+  background: var(--panel);
+  border-bottom: 2px solid var(--gold);
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.room-code-badge { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 4px; }
+.room-code-badge span { color: var(--gold-light); font-weight: bold; letter-spacing: 0.1em; }
+.room-code-badge button { margin-left: 6px; font-size: 0.75rem; background: none; border: 1px solid var(--wood-light); color: var(--text-dim); border-radius: 6px; padding: 2px 6px; cursor: pointer; }
+.room-header h2 { margin: 0; font-size: 1.1rem; max-width: 60vw; }
+
+#view-lobby, #view-courtroom { max-width: 780px; margin: 0 auto; }
+.lobby-body { padding: 18px; }
+
+.role-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin: 14px 0; }
+.role-slot {
+  border: 2px solid var(--wood-light);
+  border-radius: var(--radius);
+  padding: 12px 10px;
+  text-align: center;
+  cursor: pointer;
+  background: #17110c;
+}
+.role-slot .icon { font-size: 1.4rem; }
+.role-slot .label { display: block; font-weight: bold; margin-top: 4px; }
+.role-slot .cap { display: block; font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+.role-slot.selected { border-color: var(--gold); box-shadow: 0 0 0 2px var(--gold) inset; }
+.role-slot.full { opacity: 0.4; cursor: not-allowed; }
+
+.lobby-status { margin: 10px 0; color: var(--text-dim); font-size: 0.9rem; min-height: 1.2em; }
+
+.participant-list { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; }
+.participant-row { display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #17110c; border-radius: 8px; font-size: 0.88rem; }
+.participant-row .dot { width: 8px; height: 8px; border-radius: 50%; background: #555; flex-shrink: 0; }
+.participant-row .dot.online { background: #4caf50; box-shadow: 0 0 4px #4caf50; }
+.participant-row .role-tag { margin-left: auto; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; color: #17110c; font-weight: bold; }
+.participant-row .host-star { color: var(--gold-light); }
+
+/* ---------- Courtroom ---------- */
+.court-header-actions { display: flex; align-items: center; gap: 8px; }
+.phase-badge { font-size: 0.75rem; padding: 4px 10px; border-radius: 10px; background: var(--wood-light); color: var(--text-dim); }
+.phase-badge.in_session { background: #2e7d32; color: #eafbe7; }
+.phase-badge.concluded { background: var(--danger); color: #ffe9e6; }
+
+.court-body { display: flex; height: calc(100vh - 76px); }
+.court-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  padding: 14px;
+  background: var(--panel);
+  overflow-y: auto;
+  border-right: 1px solid var(--wood-light);
+}
+.court-sidebar h3 { margin: 0 0 10px; font-size: 0.9rem; color: var(--gold-light); }
+.court-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 14px; }
+
+.court-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.chat-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+
+.msg { max-width: 82%; padding: 10px 12px; border-radius: 12px; background: #17110c; border-left: 4px solid #555; }
+.msg .msg-head { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-dim); margin-bottom: 4px; }
+.msg .msg-head .name { font-weight: bold; color: var(--text); }
+.msg .msg-body { white-space: pre-wrap; line-height: 1.5; }
+.msg .msg-star { margin-left: auto; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; }
+.msg .msg-star.starred { color: var(--gold-light); }
+
+.msg.self { align-self: flex-end; }
+.msg.judge { align-self: center; max-width: 92%; border-left-color: var(--gold); background: #241c10; }
+.msg.judge .msg-head .name { color: var(--gold-light); }
+.msg.system { align-self: center; font-style: italic; color: var(--text-dim); background: transparent; border: 1px dashed var(--wood-light); max-width: 92%; }
+
+.chat-input-row { display: flex; gap: 8px; padding: 12px; background: var(--panel); border-top: 1px solid var(--wood-light); }
+.chat-input-row input[type="text"] { flex: 1; }
+.chat-input-row .primary-btn { width: auto; padding: 10px 18px; }
+.my-role-select { width: auto; flex-shrink: 0; }
+
+@media (max-width: 680px) {
+  .court-sidebar { position: fixed; inset: 76px 0 0 auto; right: 0; width: 78vw; max-width: 280px; z-index: 20; transform: translateX(0); transition: transform 0.2s; box-shadow: -6px 0 16px rgba(0,0,0,0.4); }
+  .court-sidebar.hidden { transform: translateX(100%); }
+  .room-header h2 { max-width: 100%; font-size: 1rem; }
+}
