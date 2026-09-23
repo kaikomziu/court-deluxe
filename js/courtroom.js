@@ -87,6 +87,18 @@ export function updateMessageStar(msg) {
   if (node) node.textContent = `⭐ ${msg.star_count || 0}`;
 }
 
+export function setTypingIndicator(nicknames) {
+  const el = document.getElementById('typing-indicator');
+  if (!nicknames || nicknames.length === 0) {
+    el.hidden = true;
+    el.textContent = '';
+    return;
+  }
+  const label = `${nicknames.join('・')}が入力中`;
+  el.innerHTML = `${escapeHtml(label)}<span class="typing-dots"><span></span><span></span><span></span></span>`;
+  el.hidden = false;
+}
+
 export function wireCourtroomDom() {
   document.getElementById('form-chat').addEventListener('submit', (e) => {
     e.preventDefault();
@@ -95,6 +107,15 @@ export function wireCourtroomDom() {
     if (!body) return;
     handlers.onSend(body);
     input.value = '';
+    handlers.onStopTyping();
+  });
+
+  document.getElementById('input-chat').addEventListener('input', (e) => {
+    if (e.target.value.trim()) {
+      handlers.onTyping();
+    } else {
+      handlers.onStopTyping();
+    }
   });
 
   document.getElementById('chat-log').addEventListener('click', (e) => {

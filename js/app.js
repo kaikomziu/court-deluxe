@@ -3,7 +3,7 @@ import { ROLE_CATALOG, AUDIENCE_ROLE, customColor, slugifyCustomKey } from './ro
 import * as judge from './judge.js';
 import * as roomApi from './room.js';
 import { appState, getClientId, randomAudienceName } from './state.js';
-import { HEARTBEAT_MS } from './config.js';
+import { HEARTBEAT_MS, TYPING_TIMEOUT_MS, TYPING_BROADCAST_INTERVAL_MS } from './config.js';
 import { initLobbyHandlers, renderLobby } from './lobby.js';
 import {
   initCourtroomHandlers,
@@ -12,6 +12,7 @@ import {
   renderAllMessages,
   appendMessage,
   updateMessageStar,
+  setTypingIndicator,
   wireCourtroomDom,
   resetCourtroom,
 } from './courtroom.js';
@@ -19,8 +20,12 @@ import {
 let customRoles = [];
 let heartbeatTimer = null;
 let tickTimer = null;
+let typingSweepTimer = null;
 let enteredCourtroom = false;
 let channel = null;
+let typingChannel = null;
+const typingUsers = new Map();
+let lastTypingBroadcastAt = 0;
 
 function showView(name) {
   for (const id of ['view-landing', 'view-lobby', 'view-courtroom']) {
@@ -149,6 +154,7 @@ async function enterRoomFlow(room, isCreator) {
   subscribeRoom(room.id);
   startHeartbeat(room.id);
   startTicker();
+  startTypingSweep();
   showLandingError('');
   updateView();
 }
@@ -203,6 +209,7 @@ function subscribeRoom(roomId) {
         if (appState.messages.some((m) => m.id === payload.new.id)) return;
         appState.messages.push(payload.new);
         if (enteredCourtroom) appendMessage(payload.new, appState.room.roles_config);
+        if (payload.new.client_id && typingUsers.delete(payload.new.client_id)) renderTypingIndicator();
       }
     )
     .on(
@@ -215,6 +222,46 @@ function subscribeRoom(roomId) {
       }
     )
     .subscribe();
+
+  if (typingChannel) supabase.removeChannel(typingChannel);
+  typingChannel = supabase
+    .channel('court-typing-' + roomId, { config: { broadcast: { self: false } } })
+    .on('broadcast', { event: 'typing' }, ({ payload }) => handleTypingBroadcast(payload))
+    .subscribe();
+}
+
+function handleTypingBroadcast(payload) {
+  if (!payload || payload.clientId === getClientId()) return;
+  if (payload.stopped) {
+    typingUsers.delete(payload.clientId);
+  } else {
+    typingUsers.set(payload.clientId, { nickname: payload.nickname, expiresAt: Date.now() + TYPING_TIMEOUT_MS });
+  }
+  renderTypingIndicator();
+}
+
+function renderTypingIndicator() {
+  const now = Date.now();
+  for (const [clientId, info] of typingUsers) {
+    if (info.expiresAt <= now) typingUsers.delete(clientId);
+  }
+  setTypingIndicator([...typingUsers.values()].map((v) => v.nickname));
+}
+
+function broadcastTyping(stopped) {
+  if (!typingChannel || !appState.me) return;
+  const now = Date.now();
+  if (!stopped) {
+    if (now - lastTypingBroadcastAt < TYPING_BROADCAST_INTERVAL_MS) return;
+    lastTypingBroadcastAt = now;
+  } else {
+    lastTypingBroadcastAt = 0;
+  }
+  typingChannel.send({
+    type: 'broadcast',
+    event: 'typing',
+    payload: { clientId: getClientId(), nickname: appState.me.nickname, stopped },
+  });
 }
 
 function startHeartbeat(roomId) {
@@ -231,11 +278,21 @@ function startTicker() {
   }, 5000);
 }
 
+function startTypingSweep() {
+  clearInterval(typingSweepTimer);
+  typingSweepTimer = setInterval(renderTypingIndicator, 1000);
+}
+
 function teardownRoom() {
   clearInterval(heartbeatTimer);
   clearInterval(tickTimer);
+  clearInterval(typingSweepTimer);
+  typingUsers.clear();
+  setTypingIndicator([]);
   if (channel) supabase.removeChannel(channel);
   channel = null;
+  if (typingChannel) supabase.removeChannel(typingChannel);
+  typingChannel = null;
   appState.room = null;
   appState.me = null;
   appState.participants = [];
@@ -379,6 +436,8 @@ initCourtroomHandlers({
       console.error(err);
     }
   },
+  onTyping: () => broadcastTyping(false),
+  onStopTyping: () => broadcastTyping(true),
   onNextTurn: async () => {
     const room = appState.room;
     const turnRoles = room.roles_config.filter((r) => r.key !== 'audience');

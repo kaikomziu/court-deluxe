@@ -5,3 +5,6 @@ export const SUPABASE_ANON_KEY =
 
 export const HEARTBEAT_MS = 15000;
 export const ONLINE_TIMEOUT_MS = 40000;
+
+export const TYPING_TIMEOUT_MS = 3000;
+export const TYPING_BROADCAST_INTERVAL_MS = 1500;
