@@ -420,11 +420,11 @@ document.getElementById('btn-start-session').addEventListener('click', async () 
 
 // ---------- 法廷(チャット)操作 ----------
 initCourtroomHandlers({
-  onSend: async (body) => {
+  onSend: async (body, replyToId) => {
     const me = appState.me;
     if (!me) return;
     try {
-      await roomApi.postMessage({ roomId: appState.room.id, roleKey: me.role_key, nickname: me.nickname, body, kind: 'chat' });
+      await roomApi.postMessage({ roomId: appState.room.id, roleKey: me.role_key, nickname: me.nickname, body, kind: 'chat', replyToId });
     } catch (err) {
       alert('送信に失敗しました: ' + err.message);
     }

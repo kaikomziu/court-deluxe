@@ -90,7 +90,7 @@ export async function heartbeat(roomId) {
     .eq('client_id', clientId);
 }
 
-export async function postMessage({ roomId, roleKey, nickname, body, kind }) {
+export async function postMessage({ roomId, roleKey, nickname, body, kind, replyToId }) {
   const clientId = getClientId();
   const { data, error } = await supabase
     .from('court_messages')
@@ -101,6 +101,7 @@ export async function postMessage({ roomId, roleKey, nickname, body, kind }) {
       role_key: kind === 'chat' ? roleKey : kind === 'judge' ? 'judge' : 'system',
       body,
       kind: kind || 'chat',
+      reply_to_id: kind === 'chat' ? replyToId || null : null,
     })
     .select()
     .single();

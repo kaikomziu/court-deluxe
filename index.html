@@ -130,6 +130,10 @@
     <main class="court-main">
       <div id="chat-log" class="chat-log"></div>
       <div id="typing-indicator" class="typing-indicator" hidden></div>
+      <div id="reply-preview" class="reply-preview" hidden>
+        <span id="reply-preview-text" class="reply-preview-text"></span>
+        <button id="btn-cancel-reply" type="button" class="reply-preview-cancel">✕</button>
+      </div>
       <form id="form-chat" class="chat-input-row">
         <input id="input-chat" type="text" maxlength="500" placeholder="発言を入力…" autocomplete="off">
         <button type="submit" class="primary-btn">送信</button>
