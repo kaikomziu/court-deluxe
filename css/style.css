@@ -202,6 +202,22 @@ textarea { resize: vertical; }
 .court-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
 .chat-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
 
+.announcement-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, #2e2210, #241c10);
+  border-bottom: 2px solid var(--gold);
+  cursor: pointer;
+}
+.announcement-banner[hidden] { display: none; }
+.announcement-icon { flex-shrink: 0; }
+.announcement-text { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--gold-light); font-size: 0.9rem; }
+.announcement-unpin { flex-shrink: 0; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.9rem; }
+.announcement-unpin[hidden] { display: none; }
+.announcement-unpin:hover { color: var(--danger); }
+
 .typing-indicator {
   padding: 2px 16px 4px;
   font-size: 0.8rem;
@@ -232,10 +248,12 @@ textarea { resize: vertical; }
 .msg .msg-head { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-dim); margin-bottom: 4px; }
 .msg .msg-head .name { font-weight: bold; color: var(--text); }
 .msg .msg-body { white-space: pre-wrap; line-height: 1.5; }
-.msg .msg-reply { margin-left: auto; background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; padding: 2px 4px; }
-.msg .msg-reply:hover { color: var(--gold-light); }
-.msg .msg-star { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; }
-.msg .msg-star.starred { color: var(--gold-light); }
+.msg-actions { margin-left: auto; display: flex; align-items: center; gap: 6px; }
+.msg-actions button { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 0.85rem; padding: 2px 4px; }
+.msg-actions .msg-reply:hover { color: var(--gold-light); }
+.msg-actions .msg-pin:hover { color: var(--gold-light); }
+.msg-actions .msg-pin.pinned { color: var(--gold-light); }
+.msg-actions .msg-star.starred { color: var(--gold-light); }
 
 .msg.self { align-self: flex-end; }
 .msg.judge { align-self: center; max-width: 92%; border-left-color: var(--gold); background: #241c10; }

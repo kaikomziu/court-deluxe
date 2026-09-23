@@ -131,6 +131,16 @@ export async function tryConcludeRoom(roomId) {
   return !!data;
 }
 
+export async function pinMessage(roomId, messageId) {
+  const { error } = await supabase.from('court_rooms').update({ pinned_message_id: messageId }).eq('id', roomId);
+  if (error) throw error;
+}
+
+export async function unpinMessage(roomId) {
+  const { error } = await supabase.from('court_rooms').update({ pinned_message_id: null }).eq('id', roomId);
+  if (error) throw error;
+}
+
 export async function advanceTurn(room) {
   const nextIndex = room.turn_index + 1;
   const { data, error } = await supabase

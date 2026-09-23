@@ -6,6 +6,8 @@ let handlers = null;
 const renderedIds = new Set();
 const messageById = new Map();
 let replyingToId = null;
+let currentIsHost = false;
+let currentPinnedId = null;
 
 export function initCourtroomHandlers(h) {
   handlers = h;
@@ -14,8 +16,10 @@ export function initCourtroomHandlers(h) {
 export function resetCourtroom() {
   renderedIds.clear();
   messageById.clear();
+  currentPinnedId = null;
   cancelReply();
   document.getElementById('chat-log').replaceChildren();
+  document.getElementById('announcement-banner').hidden = true;
 }
 
 function escapeHtml(s) {
@@ -27,6 +31,8 @@ function truncate(text, max) {
 }
 
 export function renderCourtHeader(room, isHost) {
+  currentIsHost = isHost;
+  currentPinnedId = room.pinned_message_id || null;
   document.getElementById('court-room-code').textContent = room.room_code;
   document.getElementById('court-topic').textContent = room.topic;
   const badge = document.getElementById('court-phase-badge');
@@ -40,6 +46,20 @@ export function renderCourtHeader(room, isHost) {
   const chatDisabled = room.phase === 'concluded';
   document.getElementById('input-chat').disabled = chatDisabled;
   document.querySelector('#form-chat button[type="submit"]').disabled = chatDisabled;
+}
+
+export function renderAnnouncement(room, rolesConfig) {
+  const banner = document.getElementById('announcement-banner');
+  const unpinBtn = document.getElementById('btn-unpin-announcement');
+  const pinned = room.pinned_message_id ? messageById.get(room.pinned_message_id) : null;
+  if (!pinned) {
+    banner.hidden = true;
+    return;
+  }
+  const role = findRoleMeta(rolesConfig, pinned.role_key);
+  document.getElementById('announcement-text').textContent = `${pinned.nickname || role.label}: ${pinned.body}`;
+  unpinBtn.hidden = !currentIsHost;
+  banner.hidden = false;
 }
 
 export function renderCourtParticipants(participants, rolesConfig) {
@@ -65,6 +85,10 @@ function buildMessageNode(msg, rolesConfig) {
   div.dataset.id = msg.id;
   div.style.borderLeftColor = msg.kind === 'chat' ? role.color : '';
 
+  const isPinned = msg.id === currentPinnedId;
+  const pinBtn = currentIsHost
+    ? `<button type="button" class="msg-pin${isPinned ? ' pinned' : ''}" data-id="${msg.id}" title="${isPinned ? 'アナウンスを解除' : 'アナウンスにする'}">📌</button>`
+    : '';
   const replyBtn = msg.kind === 'chat'
     ? `<button type="button" class="msg-reply" data-id="${msg.id}">↩ 返信</button>`
     : '';
@@ -77,8 +101,11 @@ function buildMessageNode(msg, rolesConfig) {
       <span class="icon">${role.icon || ''}</span>
       <span class="name">${escapeHtml(msg.nickname || role.label)}</span>
       <span>${msg.kind === 'chat' ? role.label : ''}</span>
-      ${replyBtn}
-      ${starBtn}
+      <div class="msg-actions">
+        ${pinBtn}
+        ${replyBtn}
+        ${starBtn}
+      </div>
     </div>
     ${buildQuotedRef(msg, rolesConfig)}
     <div class="msg-body">${escapeHtml(msg.body)}</div>
@@ -178,9 +205,18 @@ export function wireCourtroomDom() {
     if (starBtn) return handlers.onToggleStar(starBtn.dataset.id);
     const replyBtn = e.target.closest('.msg-reply');
     if (replyBtn) return startReply(replyBtn.dataset.id);
+    const pinBtn = e.target.closest('.msg-pin');
+    if (pinBtn) return handlers.onPinMessage(pinBtn.dataset.id);
     const quoted = e.target.closest('.quoted-ref');
     if (quoted) return scrollToMessage(quoted.dataset.scrollTo);
   });
+
+  document.getElementById('announcement-banner').addEventListener('click', (e) => {
+    if (e.target.closest('.announcement-unpin')) return;
+    const room = handlers.getRoom();
+    if (room?.pinned_message_id) scrollToMessage(room.pinned_message_id);
+  });
+  document.getElementById('btn-unpin-announcement').addEventListener('click', () => handlers.onUnpinMessage());
 
   document.getElementById('btn-next-turn').addEventListener('click', () => {
     handlers.onNextTurn();

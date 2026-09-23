@@ -10,6 +10,7 @@ import {
   renderCourtHeader,
   renderCourtParticipants,
   renderAllMessages,
+  renderAnnouncement,
   appendMessage,
   updateMessageStar,
   setTypingIndicator,
@@ -174,6 +175,7 @@ function updateView() {
     renderCourtHeader(room, !!me?.is_host);
     renderCourtParticipants(appState.participants, room.roles_config);
     renderAllMessages(appState.messages, room.roles_config);
+    renderAnnouncement(room, room.roles_config);
   } else {
     showView('view-lobby');
     renderLobby({ room, participants: appState.participants, me });
@@ -464,6 +466,25 @@ initCourtroomHandlers({
       if (!won) return;
       const messages = await roomApi.fetchMessages(room.id);
       await roomApi.postMessage({ roomId: room.id, kind: 'judge', body: judge.buildSummary(room.roles_config, messages) });
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  getRoom: () => appState.room,
+  onPinMessage: async (messageId) => {
+    try {
+      if (appState.room.pinned_message_id === messageId) {
+        await roomApi.unpinMessage(appState.room.id);
+      } else {
+        await roomApi.pinMessage(appState.room.id, messageId);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  },
+  onUnpinMessage: async () => {
+    try {
+      await roomApi.unpinMessage(appState.room.id);
     } catch (err) {
       console.error(err);
     }
