@@ -25,6 +25,7 @@
   <div class="tabs">
     <button class="tab-btn active" data-tab="create">部屋を作る</button>
     <button class="tab-btn" data-tab="join">部屋に入る</button>
+    <button class="tab-btn" data-tab="public">公開部屋</button>
   </div>
 
   <section id="tab-create" class="tab-panel active">
@@ -36,6 +37,10 @@
       <label class="field">
         <span>入室パスワード</span>
         <input id="input-create-password" type="text" required maxlength="50" placeholder="合言葉を決めてください">
+      </label>
+      <label class="audience-toggle">
+        <input type="checkbox" id="input-is-public">
+        <span>🌐 公開部屋にする(部屋コード不要、合言葉だけで誰でも参加可)</span>
       </label>
 
       <fieldset class="role-config">
@@ -74,6 +79,15 @@
       </label>
       <button type="submit" class="primary-btn">入る</button>
     </form>
+  </section>
+
+  <section id="tab-public" class="tab-panel">
+    <div class="public-room-header">
+      <p class="public-room-hint">公開されている部屋の一覧です。パスワードだけで参加できます。</p>
+      <button id="btn-refresh-public" type="button" class="ghost-btn">🔄 更新</button>
+    </div>
+    <div id="public-room-list" class="public-room-list"></div>
+    <p id="public-room-empty" class="lobby-status" hidden>現在公開されている部屋はありません。</p>
   </section>
 
   <p id="landing-error" class="error-msg" hidden></p>

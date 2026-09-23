@@ -309,8 +309,9 @@ document.getElementById('form-create').addEventListener('submit', async (e) => {
   const password = document.getElementById('input-create-password').value;
   if (!topic || !password) return;
   const rolesConfig = collectRolesConfig();
+  const isPublic = document.getElementById('input-is-public').checked;
   try {
-    const room = await roomApi.createRoom({ topic, password, rolesConfig });
+    const room = await roomApi.createRoom({ topic, password, rolesConfig, isPublic });
     await enterRoomFlow(room, true);
   } catch (err) {
     console.error(err);
@@ -334,6 +335,81 @@ document.getElementById('form-join').addEventListener('submit', async (e) => {
     showLandingError('入室に失敗しました: ' + err.message);
   }
 });
+
+// ---------- 公開部屋一覧 ----------
+const PHASE_LABEL = { lobby: '開廷前', in_session: '審議中', concluded: '審議終了' };
+
+function renderPublicRooms(rooms) {
+  const list = document.getElementById('public-room-list');
+  const empty = document.getElementById('public-room-empty');
+  list.replaceChildren();
+  empty.hidden = rooms.length > 0;
+
+  for (const room of rooms) {
+    const card = document.createElement('div');
+    card.className = 'public-room-card';
+
+    const head = document.createElement('div');
+    head.className = 'public-room-card-head';
+    const topicSpan = document.createElement('span');
+    topicSpan.className = 'public-room-topic';
+    topicSpan.textContent = room.topic;
+    const badge = document.createElement('span');
+    badge.className = 'phase-badge ' + room.phase;
+    badge.textContent = PHASE_LABEL[room.phase] || room.phase;
+    head.append(topicSpan, badge);
+
+    const form = document.createElement('form');
+    form.className = 'public-room-join-form';
+    form.innerHTML = `
+      <input type="text" placeholder="パスワード" class="public-room-password" required>
+      <button type="submit">参加</button>
+    `;
+    const errEl = document.createElement('p');
+    errEl.className = 'public-room-error';
+    errEl.hidden = true;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errEl.hidden = true;
+      const password = form.querySelector('.public-room-password').value;
+      try {
+        const fullRoom = await roomApi.findRoomByCode(room.room_code);
+        if (!fullRoom) {
+          errEl.textContent = 'この部屋は見つかりませんでした。';
+          errEl.hidden = false;
+          return;
+        }
+        const ok = await roomApi.verifyRoomPassword(fullRoom, password);
+        if (!ok) {
+          errEl.textContent = 'パスワードが違います。';
+          errEl.hidden = false;
+          return;
+        }
+        await enterRoomFlow(fullRoom, false);
+      } catch (err) {
+        errEl.textContent = '参加に失敗しました: ' + err.message;
+        errEl.hidden = false;
+      }
+    });
+
+    card.append(head, form, errEl);
+    list.appendChild(card);
+  }
+}
+
+async function loadPublicRooms() {
+  try {
+    const rooms = await roomApi.fetchPublicRooms();
+    renderPublicRooms(rooms);
+  } catch (err) {
+    console.error(err);
+    showLandingError('公開部屋の取得に失敗しました: ' + err.message);
+  }
+}
+
+document.querySelector('.tab-btn[data-tab="public"]').addEventListener('click', loadPublicRooms);
+document.getElementById('btn-refresh-public').addEventListener('click', loadPublicRooms);
 
 document.getElementById('btn-leave-lobby').addEventListener('click', () => {
   teardownRoom();

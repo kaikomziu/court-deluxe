@@ -1,7 +1,7 @@
 import { supabase } from './supabase-client.js';
 import { sha256Hex, randomRoomCode, getClientId } from './state.js';
 
-export async function createRoom({ topic, password, rolesConfig }) {
+export async function createRoom({ topic, password, rolesConfig, isPublic }) {
   const passwordHash = await sha256Hex(password);
   const clientId = getClientId();
 
@@ -15,6 +15,7 @@ export async function createRoom({ topic, password, rolesConfig }) {
         password_hash: passwordHash,
         roles_config: rolesConfig,
         host_client_id: clientId,
+        is_public: !!isPublic,
       })
       .select()
       .single();
@@ -23,6 +24,17 @@ export async function createRoom({ topic, password, rolesConfig }) {
     if (error.code !== '23505') throw error; // unique_violation以外は即エラー
   }
   throw new Error('部屋コードの発行に失敗しました。もう一度お試しください。');
+}
+
+export async function fetchPublicRooms() {
+  const { data, error } = await supabase
+    .from('court_rooms')
+    .select('id, room_code, topic, phase, created_at')
+    .eq('is_public', true)
+    .order('created_at', { ascending: false })
+    .limit(30);
+  if (error) throw error;
+  return data;
 }
 
 export async function findRoomByCode(roomCode) {

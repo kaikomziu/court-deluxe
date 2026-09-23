@@ -96,6 +96,17 @@ textarea { resize: vertical; }
 #custom-role-list li { display: flex; justify-content: space-between; padding: 6px 10px; background: #17110c; border-radius: 6px; margin-bottom: 6px; font-size: 0.9rem; }
 #custom-role-list button { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.9rem; }
 
+.public-room-header { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 14px; }
+.public-room-hint { color: var(--text-dim); font-size: 0.85rem; margin: 0; }
+.public-room-list { display: flex; flex-direction: column; gap: 10px; }
+.public-room-card { border: 1px solid var(--wood-light); border-radius: var(--radius); padding: 12px 14px; background: #17110c; }
+.public-room-card-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.public-room-topic { font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.public-room-join-form { display: flex; gap: 8px; }
+.public-room-join-form input { flex: 1; }
+.public-room-join-form button { padding: 10px 16px; border-radius: 8px; border: none; background: linear-gradient(180deg, var(--gold-light), var(--gold)); color: #241a10; font-weight: bold; cursor: pointer; white-space: nowrap; }
+.public-room-error { color: #ff8a80; font-size: 0.8rem; margin: 6px 0 0; }
+
 .primary-btn {
   width: 100%;
   padding: 13px;
